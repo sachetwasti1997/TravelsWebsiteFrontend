@@ -1,26 +1,62 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+import Users from './user/pages/Users';
+import NewPlace from './places/pages/NewPlaces';
 
-function App() {
+import './App.css';
+// import MainNavigation from './shared/components/MainNavigation';
+import NavBar from './shared/components/NavBar';
+import UserPlaces from './places/pages/UserPlaces';
+import UpdatePlace from './places/pages/UpdatePlaces';
+import Authentication from './user/pages/Auth';
+import { connect } from 'react-redux';
+import Shield from './shared/Shield';
+
+const setRoute = (loggedIn, signUp) => {
+  let routes;
+  // console.log(loggedIn);
+  if(loggedIn || signUp){
+    routes = (
+    <React.Fragment>
+      <Route path="/" exact component={Users} />
+      <Route path="/user/:userId" component={UserPlaces}/>
+      <Route path="/places/new" component={NewPlace} />
+      <Route path="/places/:userId" component={UpdatePlace} />
+      <Redirect to="/" />
+    </React.Fragment>
+    )
+  }
+  else{
+    routes =(
+      <React.Fragment>
+        <Route path="/" exact component={Users} />
+        <Route path="/user/:userId" component={UserPlaces}/>
+        <Route path="/auth" component={Authentication}/>
+        <Redirect to="/auth" />
+      </React.Fragment>
+    )
+  }
+  return routes;
+}
+
+function App ({loggedIn, signUp}) {
+  // console.log(loggedIn);
+  const routes = setRoute(loggedIn, signUp);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Router>
+        <NavBar/>
+          <Shield>
+            <Switch>
+              {routes}
+            </Switch>
+          </Shield>
+      </Router>
   );
 }
 
-export default App;
+const mapStateToProps = (state) => {
+  // console.log(state);
+  return state;
+}
+
+export default connect(mapStateToProps)(App);
